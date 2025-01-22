@@ -1,62 +1,91 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import './index.css'; // Assuming your CSS is in index.css
 
-function XModal() {
-  const [showModal, setShowModal] = useState(false);
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [dob, setDob] = useState('');
+const ModalForm = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    username: "",
+    email: "",
+    phone: "",
+    dob: "",
+  });
+  const [formErrors, setFormErrors] = useState({
+    username: "",
+    email: "",
+    phone: "",
+    dob: "",
+  });
 
-  const handleOpenModal = () => {
-    setShowModal(true);
+  // Handle opening the modal
+  const openModal = () => setIsModalOpen(true);
+
+  // Handle closing the modal when clicking outside
+  const closeModal = (e) => {
+    if (e.target.className === "modal") {
+      setIsModalOpen(false);
+    }
   };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
+  // Handle input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  // Validate form fields
+  const validateForm = () => {
+    const errors = {};
+    const { username, email, phone, dob } = formData;
 
-    // Data validation
-    if (!username) {
-      alert('Please fill in username field.');
-      return;
+    if (!username) errors.username = "Username is required";
+    if (!email) errors.email = "Email is required";
+    if (email && !/\S+@\S+\.\S+/.test(email)) {
+      errors.email = "Invalid email. Please check your email address.";
+    }
+    if (!phone) errors.phone = "Phone number is required";
+    if (phone && !/^\d{10}$/.test(phone)) {
+      errors.phone = "Invalid phone number. Please enter a 10-digit phone number.";
+    }
+    if (!dob) errors.dob = "Date of birth is required";
+    if (dob && new Date(dob) > new Date()) {
+      errors.dob = "Invalid date of birth. Please enter a valid past date.";
     }
 
-    if (!email.includes('@')) {
-      alert('Invalid email. Please check your email address.');
-      return;
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (validateForm()) {
+      alert("Form submitted successfully!");
+      setIsModalOpen(false);
+      setFormData({
+        username: "",
+        email: "",
+        phone: "",
+        dob: "",
+      });
+      setFormErrors({
+        username: "",
+        email: "",
+        phone: "",
+        dob: "",
+      });
     }
-
-    if (phone.length !== 10) {
-      alert('Invalid phone number. Please enter a 10-digit phone number.');
-      return;
-    }
-
-    const today = new Date();
-    const enteredDate = new Date(dob);
-    if (enteredDate > today) {
-      alert('Invalid Date of Birth. Please enter a valid date.');
-      return;
-    }
-
-    // If all validations pass, close the modal
-    setShowModal(false);
-
-    // Reset form fields (optional)
-    setUsername('');
-    setEmail('');
-    setPhone('');
-    setDob('');
   };
 
   return (
-    <div>
-      <button onClick={handleOpenModal}>Open Form</button>
+    <div className="app">
+      <button onClick={openModal}>Open Form</button>
 
-      {showModal && (
-        <div className="modal">
+      {isModalOpen && (
+        <div className="modal" onClick={closeModal}>
           <div className="modal-content">
             <form onSubmit={handleSubmit}>
               <div>
@@ -64,38 +93,46 @@ function XModal() {
                 <input
                   type="text"
                   id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
                 />
+                {formErrors.username && <span className="error">{formErrors.username}</span>}
               </div>
               <div>
                 <label htmlFor="email">Email:</label>
                 <input
                   type="email"
                   id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
                 />
+                {formErrors.email && <span className="error">{formErrors.email}</span>}
               </div>
               <div>
-                <label htmlFor="phone">Phone:</label>
+                <label htmlFor="phone">Phone Number:</label>
                 <input
                   type="text"
                   id="phone"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleInputChange}
                 />
+                {formErrors.phone && <span className="error">{formErrors.phone}</span>}
               </div>
               <div>
                 <label htmlFor="dob">Date of Birth:</label>
                 <input
                   type="date"
                   id="dob"
-                  value={dob}
-                  onChange={(e) => setDob(e.target.value)}
+                  name="dob"
+                  value={formData.dob}
+                  onChange={handleInputChange}
                 />
+                {formErrors.dob && <span className="error">{formErrors.dob}</span>}
               </div>
-              <button className="submit-button" type="submit">
+              <button type="submit" className="submit-button">
                 Submit
               </button>
             </form>
@@ -104,6 +141,6 @@ function XModal() {
       )}
     </div>
   );
-}
+};
 
-export default XModal;
+export default ModalForm;
