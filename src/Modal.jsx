@@ -1,122 +1,125 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
+import './App.css'; // Assuming styles are placed in XModal.css
 
-const Modal = ({ setIsModalOpen, setModalOpenBackground }) => {
+const XModal = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState({
-    username: "",
-    email: "",
-    phone: "",
-    dob: "",
+    username: '',
+    email: '',
+    phone: '',
+    dob: '',
   });
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handleBackgroundClick = () => {
-    setIsModalOpen(false);
-    setModalOpenBackground(false);
-    setFormData((prevData) => ({
-      ...prevData,
-      username: "",
-      email: "",
-      phone: "",
-      dob: "",
-    }));
+  const openModal = () => setIsOpen(true);
+  const closeModal = () => setIsOpen(false);
+
+  const handleOutsideClick = (e) => {
+    if (e.target.className === 'modal') {
+      closeModal();
+    }
   };
 
   const handleChange = (e) => {
-    const key = e.target.name;
-    const value = e.target.value;
-    setFormData((prevState) => ({ ...prevState, [key]: value }));
+    const { id, value } = e.target;
+    setFormData({ ...formData, [id]: value });
   };
 
-  const validationCheck = () => {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      window.alert(
-        "Invalid email. Your email address should be in the format:- text@text.com"
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const { username, email, phone, dob } = formData;
+
+    if (!username) {
+      setErrorMessage('Please fill out the Username field.');
+      return;
+    }
+    if (!email.includes('@')) {
+      setErrorMessage('Invalid email. Please check your email address.');
+      return;
+    }
+    if (phone.length !== 10 || isNaN(phone)) {
+      setErrorMessage(
+        'Invalid phone number. Please enter a 10-digit phone number.'
+      );
+      return;
+    }
+    const today = new Date();
+    const birthDate = new Date(dob);
+    if (birthDate > today) {
+      setErrorMessage(
+        'Invalid Date of Birth. You cannot select a future date.'
       );
       return;
     }
 
-    if (formData.phone.length < 10) {
-      window.alert(
-        "Invalid phone number. Please enter a 10-digit phone number."
-      );
-      return;
-    }
-
-    const inputDate = new Date(formData.dob);
-    const currentDate = new Date();
-    if (currentDate < inputDate) {
-      window.alert(
-        "Invalid date of birth. Date of birth cannot be in the future."
-      );
-      return;
-    }
+    setErrorMessage('');
+    closeModal(); // Close modal on successful submission
   };
 
   return (
-    <div className="modalBackground" onClick={handleBackgroundClick}>
-      <div
-        className="modalContainer"
-        onClick={(e) => {
-          e.stopPropagation();
-        }}
-      >
-        <div className="modalHeader">
-          <h1>Fill Details</h1>
+    <div>
+    <h1>User Details modal</h1>
+      <button onClick={openModal}>Open Form</button>
+
+      {isOpen && (
+        
+        <div className='modal' onClick={handleOutsideClick}>
+          <div className='modal-content'>
+            <form onSubmit={handleSubmit}>
+            <h1>Fill Details</h1>
+              <label>
+                Username:
+                <input
+                  type='text'
+                  id='username'
+                  placeholder='Enter your username'
+                  value={formData.username}
+                  onChange={handleChange}
+                />
+              </label>
+              <br />
+              <label>
+                Email Address:
+                <input
+                  type='email'
+                  id='email'
+                  placeholder='Enter your email'
+                  value={formData.email}
+                  onChange={handleChange}
+                />
+              </label>
+              <br />
+              <label>
+                Phone Number:
+                <input
+                  type='text'
+                  id='phone'
+                  placeholder='Enter your phone number'
+                  value={formData.phone}
+                  onChange={handleChange}
+                />
+              </label>
+              <br />
+              <label>
+                Date of Birth:
+                <input
+                  type='date'
+                  id='dob'
+                  value={formData.dob}
+                  onChange={handleChange}
+                />
+              </label>
+              <br />
+              <button type='submit' className='submit-button'>
+                Submit
+              </button>
+            </form>
+            {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+          </div>
         </div>
-        <div className="modalBody">
-          <form onSubmit={validationCheck}>
-            <label htmlFor="username">
-              <h3>Username:</h3>
-            </label>
-            <input
-              type="text"
-              name="username"
-              value={formData.username}
-              onChange={handleChange}
-              required
-            />
-
-            <label htmlFor="email">
-              <h3>Email Address:</h3>
-            </label>
-            <input
-              type="text"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-
-            <label htmlFor="phone">
-              <h3>Phone Number:</h3>
-            </label>
-            <input
-              type="text"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-            />
-
-            <label htmlFor="dob">
-              <h3>Date of Birth:</h3>
-            </label>
-            <input
-              type="Date"
-              name="dob"
-              value={formData.dob}
-              onChange={handleChange}
-              required
-            />
-            <br />
-
-            <button type="submit" className="submit">
-              Submit
-            </button>
-          </form>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
 
-export default Modal;
+export default XModal;
