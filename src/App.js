@@ -19,7 +19,7 @@ function XModal() {
     event.preventDefault();
 
     // Data validation
-    if (!username |) {
+    if (!username) {
       alert('Please fill in username field.');
       return;
     }
