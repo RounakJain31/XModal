@@ -19,8 +19,8 @@ function XModal() {
     event.preventDefault();
 
     // Data validation
-    if (!username || !email || !phone || !dob) {
-      alert('Please fill in all fields.');
+    if (!username |) {
+      alert('Please fill in username field.');
       return;
     }
 
